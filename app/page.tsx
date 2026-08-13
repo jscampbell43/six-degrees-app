@@ -1,14 +1,7 @@
 import Link from "next/link";
 import Search from '@/app/ui/search';
 
-export default async function Home() {
-
-  const getActors = async () => {
-    const res = await fetch('https://dummyjson.com/products');
-    return res.json();
-  }
-
-  const data = await getActors();
+export default function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center font-sans">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16">
