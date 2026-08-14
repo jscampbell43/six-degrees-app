@@ -1,15 +1,12 @@
-import Link from "next/link";
 import Search from '@/app/ui/search';
+import FindDegreesButton from '@/app/ui/find-degrees-button';
 import { Suspense } from 'react';
 
 export default function Home({
   searchParams,
 }: {
-  searchParams?: { actor1?: string; actor2?: string };
+  searchParams: Promise<{ actor1?: string; actor2?: string }>;
 }) {
-  const actor1 = searchParams?.actor1 || '';
-  const actor2 = searchParams?.actor2 || '';
-
   return (
     <div className="flex flex-col flex-1 items-center justify-center font-sans">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16">
@@ -45,14 +42,9 @@ export default function Home({
           </div>
         </Suspense>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <Link
-            className="flex h-12 w-full items-center justify-center gap-20 rounded-full px-5 bg-[#3B1299] transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-          
-            href={`/results?${actor1}&${actor2}`}
-            rel="noopener noreferrer"
-          >
-            Find Degrees
-          </Link>
+          <Suspense fallback={<div>Loading...</div>}>
+            <FindDegreesButton />
+          </Suspense>
         </div>
         
       </main>
