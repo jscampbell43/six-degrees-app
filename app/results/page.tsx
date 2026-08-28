@@ -1,5 +1,4 @@
 import Link from "next/link";
-import '@/app/lib/neo4j';
 
 export default async function Results({
   searchParams,
