@@ -4,6 +4,7 @@ let driver: any = null;
 
 // Singleton pattern with one Driver maintained and shared across the app
 export function getDriver(){
+  console.log("Entering getDriver Function")
   try {
     if (!driver) {
       const uri = process.env.NEO4J_URI;
