@@ -2,7 +2,7 @@
 import { readQuery } from '@/app/lib/neo4j';
 import * as dotenv from 'dotenv';
 import path from 'path';
-import {TMDBActorDetails, TMDBMovieCredits, TMDBTVCredits} from '@/app/types/actor';
+import {TMDBActorDetails, TMDBMovieCredits, TMDBTVCredits, TMDBPopularActors} from '@/app/types/actor';
 // Load environment variables from Next.js defaults
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
@@ -15,20 +15,12 @@ if (!uri || !username || !password) {
   process.exit(1);
 }
 
-
-async function seedGraph() {
-  console.log('🌱 Starting graph database seeding...', new Date().toISOString());
-
-  try {
-    // 1. Optional: Clear existing nodes and relationships (Skip in production!)
-    console.log('🧹 Clearing existing graph data...');
-    await readQuery('MATCH (n) DETACH DELETE n');
-    console.log('Sample Data Input');
-    // 2. Seed Data from The Movie DataBase API
-    // Current step figure out how to get IDs for this search combined credits 
-    const url_1 = `https://api.themoviedb.org/3/person/${4724}`;
-    const url1 = `https://api.themoviedb.org/3/person/${4724}/movie_credits`;
-    const url2 = `https://api.themoviedb.org/3/person/${4724}/tv_credits`;
+async function getActorMoviesAndTVShows(actorId: Number): Promise<[any, any[]]>{
+  console.log('Starting Actor Movie And TVShow Search')
+    // Current step Make function to automate this process, run it on list of actor ids possibly also collected from API 
+    const url_1 = `https://api.themoviedb.org/3/person/${actorId}`;
+    const url1 = `https://api.themoviedb.org/3/person/${actorId}/movie_credits`;
+    const url2 = `https://api.themoviedb.org/3/person/${actorId}/tv_credits`;
     const options = {
         method: 'GET',
         headers: {
@@ -54,50 +46,104 @@ async function seedGraph() {
     console.log('Actor 1 TV data:', data2.cast.map(item => item.id));
     //console.log('Actor 2 data:', data2);
 
-    const actors = [
-      { id: data_1.id, name: data_1.name },
-      { id: 'u2', name: 'Bob' },
-    ];
+    const actor = { id: data_1.id, name: data_1.name };
 
     const movies = data1.cast.map(item => ({
       id: item.id,
       title: item.title
     }));
 
-    const relationships = movies.map(item =>({
-      movieId: item.id, 
-      actorId: actors[0].id, 
-      type: 'ACTED_IN'
-    }));
+    return [actor, movies];
+}
 
-    console.log('ACTORS', actors);
-    console.log('MOVIES', movies);
-    console.log('RELATIONSHIPS', relationships);
+
+async function seedGraph() {
+  console.log('🌱 Starting graph database seeding...', new Date().toISOString());
+
+  try {
+    // 1. Optional: Clear existing nodes and relationships (Skip in production!)
+    console.log('🧹 Clearing existing graph data...');
+    await readQuery('MATCH (n) DETACH DELETE n');
+    console.log('Sample Data Input');
+    // 2. Seed Data from The Movie DataBase API
+    // Current step Make function to automate this process, run it on list of actor ids possibly also collected from API
+    // List of Actor IDs
+    const url_pop = `https://api.themoviedb.org/3/person/popular?page=1`;
+    const options = {
+        method: 'GET',
+        headers: {
+            accept: 'application/json',
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4MjZkZjJkZjQyZWU4YTc4N2ZmNjc3MDJkNTc5MmI3MCIsIm5iZiI6MTc4NjY1NDc2Ny40ODE5OTk5LCJzdWIiOiI2YTdlMzAyZjYwMDY0MmYxYTUzZGEyMzMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.Eqt0uU3rEbtQvOqROJri2sgmjhiGdmV_I9t_Lhnp-HE'
+        }
+    };
+    const [res_pop] = await Promise.all([
+        fetch(url_pop, options)
+    ]);
+    const [data_pop] = await Promise.all([
+        res_pop.json() as Promise<TMDBPopularActors>
+    ]);
+
+    //console.log('Actor 1 Full Response:', JSON.stringify(data_1, null, 2));
+    //console.log('Actor 1 Info:', data_pop.results.map(item => item.id));
+
+
+
+  //   const ActorMovieTuple = await getActorMoviesAndTVShows(4724);
+  //   //1461
+  //   const ActorMovieTuple2 = await getActorMoviesAndTVShows(1461);
+  const ActorsAndMovies = await Promise.all(
+    data_pop.results.map(item => getActorMoviesAndTVShows(item.id))
+  ); // List of tuples: [[actor, movies[]]]
+   
+  // console.log('ActorsAndMovies', ActorsAndMovies.map(([actor, movies])=> 
+  //       movies.map(movie => ({
+  //         movieTitle:movie.title,
+  //         actorName: actor.name
+  //       }))
+  //     ));
+    // relationships is a list of lists, where each inner list contains all relationships for one actor
+    const relationships = ActorsAndMovies.map(([actor, movies]) => 
+      movies.map(movie => ({
+        movieId: movie.id,
+        actorId: actor.id,
+        type: 'ACTED_IN'
+      }))
+    );
+    
+    //console.log('ACTORS', ActorsAndMovies);
+    //console.log('RELATIONSHIPS', relationships);
 
     console.log('END of Sample Data Input 1');
     // 3. Batch Create Nodes using UNWIND for high performance
     console.log('📦 Creating Actor and Movie nodes...');
+    
+    // Extract all actors from the tuples
+    const allActors = ActorsAndMovies.map(([actor]) => actor);
     await readQuery(`
       UNWIND $actors AS actor
       MERGE (a:Actor {id: actor.id, name: actor.name})
-    `, { actors });
+    `, { actors: allActors });
 
+    // Extract all movies from the tuples (flatten)
+    const allMovies = ActorsAndMovies.flatMap(([, movies]) => movies);
     await readQuery(`
       UNWIND $movies AS movie
       MERGE (m:Movie {id: movie.id, title: movie.title})
-    `, { movies });
+    `, { movies: allMovies });
 
     // 4. Batch Create Relationships
     console.log('🔗 Connecting graph entities...');
+    // Flatten the relationships (list of lists -> single list)
+    const allRelationships = relationships.flat();
     await readQuery(`
       UNWIND $rels AS rel
       MATCH (a:Actor {id: rel.actorId})
       MATCH (m:Movie {id: rel.movieId})
       MERGE (a)-[:ACTED_IN]->(m)
       RETURN count(*)
-    `, { rels: relationships });
+    `, { rels: allRelationships });
 
-    // console.log('✅ Seeding completed successfully!');
+    console.log('✅ Seeding completed successfully!');
   } catch (error) {
     console.error('❌ Seeding failed:', error);
   }

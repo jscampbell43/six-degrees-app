@@ -29,3 +29,10 @@ export interface TMDBTVCredits {
     job?: string;
   }>;
 }
+
+export interface TMDBPopularActors {
+  results: Array<{
+    id: number;
+    name: string;
+  }>;
+}
