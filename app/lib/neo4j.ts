@@ -49,7 +49,6 @@ export async function readQuery(cypher: string, params = {}){
       // Process Results
       const values = res.records.map((record: any) => record.toObject())
 
-      console.log(values)
       return values;
     }
     finally{

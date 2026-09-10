@@ -42,16 +42,22 @@ async function getActorMoviesAndTVShows(actorId: Number): Promise<[any, any[]]>{
 
     //console.log('Actor 1 Full Response:', JSON.stringify(data_1, null, 2));
     console.log('Actor 1 Info:', data_1.name);
-    console.log('Actor 1 Movie data:', data1.cast.map(item => item.id));
-    console.log('Actor 1 TV data:', data2.cast.map(item => item.id));
+    //console.log('Actor 1 Movie data:', data1.cast.map(item => item.id));
+    //console.log('Actor 1 TV data:', data2.cast.map(item => item.name));
     //console.log('Actor 2 data:', data2);
 
     const actor = { id: data_1.id, name: data_1.name };
 
-    const movies = data1.cast.map(item => ({
+    let movies = data1.cast.map(item => ({
       id: item.id,
       title: item.title
     }));
+
+    movies = movies.concat(data2.cast.map(item => ({
+      // Multiply ID by 100 to account for a Movie ID being identical to a TV ID
+      id: (item.id*100),
+      title: item.name
+    })));
 
     return [actor, movies];
 }
@@ -62,13 +68,13 @@ async function seedGraph() {
 
   try {
     // 1. Optional: Clear existing nodes and relationships (Skip in production!)
-    console.log('🧹 Clearing existing graph data...');
-    await readQuery('MATCH (n) DETACH DELETE n');
+    // console.log('🧹 Clearing existing graph data...');
+    // await readQuery('MATCH (n) DETACH DELETE n');
     console.log('Sample Data Input');
     // 2. Seed Data from The Movie DataBase API
     // Current step Make function to automate this process, run it on list of actor ids possibly also collected from API
     // List of Actor IDs
-    const url_pop = `https://api.themoviedb.org/3/person/popular?page=1`;
+    const url_pop = `https://api.themoviedb.org/3/person/popular?page=10`;
     const options = {
         method: 'GET',
         headers: {
@@ -94,7 +100,7 @@ async function seedGraph() {
   const ActorsAndMovies = await Promise.all(
     data_pop.results.map(item => getActorMoviesAndTVShows(item.id))
   ); // List of tuples: [[actor, movies[]]]
-   
+  
   // console.log('ActorsAndMovies', ActorsAndMovies.map(([actor, movies])=> 
   //       movies.map(movie => ({
   //         movieTitle:movie.title,
@@ -121,14 +127,16 @@ async function seedGraph() {
     const allActors = ActorsAndMovies.map(([actor]) => actor);
     await readQuery(`
       UNWIND $actors AS actor
-      MERGE (a:Actor {id: actor.id, name: actor.name})
+      MERGE (a:Actor {id: actor.id})
+      SET a.name = actor.name
     `, { actors: allActors });
 
     // Extract all movies from the tuples (flatten)
     const allMovies = ActorsAndMovies.flatMap(([, movies]) => movies);
     await readQuery(`
       UNWIND $movies AS movie
-      MERGE (m:Movie {id: movie.id, title: movie.title})
+      MERGE (m:Movie {id: movie.id})
+      SET m.title = movie.title
     `, { movies: allMovies });
 
     // 4. Batch Create Relationships
