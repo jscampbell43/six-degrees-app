@@ -63,7 +63,7 @@ async function getActorMoviesAndTVShows(actorId: Number): Promise<[any, any[]]>{
 }
 
 
-async function seedGraph() {
+async function seedGraph(pageNumber: Number) {
   console.log('🌱 Starting graph database seeding...', new Date().toISOString());
 
   try {
@@ -74,7 +74,7 @@ async function seedGraph() {
     // 2. Seed Data from The Movie DataBase API
     // Current step Make function to automate this process, run it on list of actor ids possibly also collected from API
     // List of Actor IDs
-    const url_pop = `https://api.themoviedb.org/3/person/popular?page=10`;
+    const url_pop = `https://api.themoviedb.org/3/person/popular?page=${pageNumber}`;
     const options = {
         method: 'GET',
         headers: {
@@ -157,4 +157,16 @@ async function seedGraph() {
   }
 }
 
-seedGraph();
+// helper function to delay between each call to the API to avoid rate limiting
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function multipleSeed(){
+  console.log("MULTIPLE LOOP SEEDING")
+  for (let i = 12; i < 14; i++) {
+    console.log("Loop", i);
+    seedGraph(i);
+    await delay(20000); // 10 second delay between loops
+  }
+}
+
+multipleSeed();

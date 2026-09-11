@@ -39,26 +39,17 @@ export default async function Results({
     return (
     <div className="flex flex-col flex-1 items-center justify-center font-sans">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 border-2 border-red-500">
-        <div className="flex gap-20 w-full mb-8 border-2 border-blue-500">
-          <div className="flex-1 text-left border-2 border-green-500 p-4">
-            {neo4jPath?.segments?.map((segment: any, index: number) => (
-              <div key={index} className="mb-4">
-                <h1>Segment {index}:</h1>
-                <p>Start: {segment.start.labels[0]} - {segment.start.properties.name || segment.start.properties.title}</p>
-                <p>End: {segment.end.labels[0]} - {segment.end.properties.name || segment.end.properties.title}</p>
-                <p>Relationship: {segment.relationship.type}</p>
-              </div>
-            ))}
-          </div>
-          <div className="flex-1 text-left border-2 border-yellow-500 p-4">
-            <h1>
-              {actor2 || 'No actor selected'}
-            </h1>
-            {/* <ul>
-              {credits2.cast?.slice(0, 5).map((item: any, index: number) => (
-                <li key={index}>{item.title || 'No title'}</li>
-              )) || <li>No data found</li>}
-            </ul> */}
+        <div className="flex gap-20 w-full mb-8 ">  
+          {/* First take the start piece of each segment and add a div section for each*/}
+          {neo4jPath?.segments?.map((segment: any, index: number, array: any) => {
+            return (
+            <div key={index} className="flex-1 text-center border-2 rounded-full border-green-500 p-4">
+              <h1>{segment.start.properties.name || segment.start.properties.title}</h1>
+            </div>
+          )})}
+          {/* Finally take the end piece of the last segment and add a div section for the last name*/}
+          <div className="flex-1 text-center border-2 rounded-full border-green-500 p-4">
+              <h1>{neo4jPath?.segments?.[neo4jPath.segments.length - 1]?.end?.properties?.name}</h1>
           </div>
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
