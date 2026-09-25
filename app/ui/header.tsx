@@ -3,7 +3,7 @@ export default function Header() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center font-sans">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-8 px-4">
-        <div className="flex gap-20 w-full mb-8">
+        <div className="flex gap-10 w-full mb-8">
           <Image
             src="\blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg"
             width={50}
@@ -11,7 +11,7 @@ export default function Header() {
             className="hidden md:block"
             alt="Screenshots of the dashboard showing desktop version"
           />
-          <p>
+          <p className = "whitespace-nowrap">
             This product uses the TMDB API but is not endorsed or certified by TMDB.
           </p>
         </div>

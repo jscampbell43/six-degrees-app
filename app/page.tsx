@@ -15,7 +15,7 @@ export default function Home({
           <div className="flex gap-20 w-full mb-8">
             {/* Search Actor 1 */}
             <div className="flex-1">
-              <label htmlFor="actor1" className="mb-2 block text-sm font-medium">
+              <label htmlFor="actor1" className="mb-2 block text-sm font-bold">
                 Choose Actor 1
               </label>
               <div className="relative">
@@ -28,7 +28,7 @@ export default function Home({
 
             {/* Search Actor 2 */}
             <div className="flex-1">
-              <label htmlFor="actor2" className="mb-2 block text-sm font-medium">
+              <label htmlFor="actor2" className="mb-2 block text-sm font-bold">
                 Choose Actor 2
               </label>
               <div className="relative">

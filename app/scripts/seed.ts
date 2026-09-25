@@ -162,10 +162,10 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function multipleSeed(){
   console.log("MULTIPLE LOOP SEEDING")
-  for (let i = 12; i < 14; i++) {
+  for (let i = 50; i < 100; i++) {
     console.log("Loop", i);
     seedGraph(i);
-    await delay(20000); // 10 second delay between loops
+    await delay(20000); // 20 second delay between loops
   }
 }
 
