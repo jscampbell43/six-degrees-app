@@ -2,6 +2,7 @@ import Link from "next/link";
 import { readQuery } from '@/app/lib/neo4j';
 import path from "path";
 import React from "react";
+import ResultsDisplay from './results-display';
 
 export default async function Results({
   searchParams,
@@ -20,6 +21,25 @@ export default async function Results({
   
   // Log detailed path information
   const neo4jPath = values && values.length > 0 ? values[0].p as any : null;
+  
+  // Serialize the Neo4j path to plain objects for client component
+  const serializedPath = neo4jPath ? {
+    length: neo4jPath.length,
+    segments: neo4jPath.segments?.map((segment: any) => ({
+      start: {
+        labels: segment.start.labels,
+        properties: segment.start.properties
+      },
+      end: {
+        labels: segment.end.labels,
+        properties: segment.end.properties
+      },
+      relationship: {
+        type: segment.relationship.type
+      }
+    }))
+  } : null;
+
   if (neo4jPath) {
     console.log("Path found:", neo4jPath);
     console.log("Path length:", neo4jPath.length);
@@ -40,31 +60,7 @@ export default async function Results({
     return (
     <div className="flex flex-col flex-1 items-center justify-center font-sans">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32">
-        <div className="flex w-full mb-8 justify-center items-center">  
-          {/* Show the first element (start of first segment, each segment has start and end, this pattern avoids duplicate names or title being shown) */}
-          {neo4jPath?.segments?.[0] && (
-            <div className="flex items-center justify-center text-center outline-2 border-2 rounded-md bg-[#5ba4f0] border-[#afc5db] p-4">
-              <h1 className="font-bold">{neo4jPath.segments[0].start.properties.name}</h1>
-            </div>
-          )}
-          {/* Map through segments and show "arrow" + end node for each */}
-          {neo4jPath?.segments?.map((segment: any, index: number) => {
-            return (
-              <React.Fragment key={index}>
-                {/*Arrow*/}
-                <div className="flex items-center justify-center">
-                  <div className="w-8 border-t-2 border-gray-600 transform"></div>
-                </div>
-                {/*Segment containing either an Actor name or Movie title*/}
-                <div className={segment.end.properties.name?
-                  "flex items-center justify-center text-center outline-2 border-2 rounded-md bg-[#5ba4f0] border-[#afc5db] p-4":
-                  "flex items-center justify-center text-center outline-2 border-2 rounded-md bg-[#c5e0fa] border-[#afc5db] p-4"}>
-                  <h1 className="font-bold">{segment.end.properties.name || segment.end.properties.title}</h1>
-                </div>
-              </React.Fragment>
-            )
-          })}
-        </div>
+        <ResultsDisplay neo4jPath={serializedPath} />
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
           <Link
             className="flex h-12 w-full items-center justify-center gap-2 rounded-full px-5 bg-[#c5e0fa] border-2 border-[#afc5db]
