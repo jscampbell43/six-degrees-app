@@ -3,6 +3,8 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 
+// Client component that displays the degrees of separation path with GSAP animations
+// Animates elements appearing sequentially with a "coming from behind" effect
 interface ResultsDisplayProps {
   neo4jPath: any;
 }
@@ -12,16 +14,15 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
 
   useEffect(() => {
     if (containerRef.current && neo4jPath?.segments) {
-      // Get the first element
+      // Get DOM elements for animation targeting
       const firstElement = containerRef.current.querySelector('.first-segment');
-      // Get all the arrow elements
       const arrows = containerRef.current.querySelectorAll('.arrow-segment');
-      // Get all the actor/movie elements
       const segments = containerRef.current.querySelectorAll('.content-segment');
 
+      // Set base z-index for stacking elements (higher = on top)
       let zIndexSet = 100
       
-      // First element - appears first
+      // Animate first element - appears first with a pop effect
       if (firstElement) {
         gsap.fromTo(firstElement,
           {scale: 0.8, y: -20, zIndex: zIndexSet},
@@ -41,7 +42,7 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
         gsap.set(el, { zIndex: zIndexSet - index - 10 });
       });
 
-      // Animate arrows - each waits for previous to complete
+      // Animate arrows - each waits for previous to complete, slides from left
       gsap.fromTo(arrows,
         { opacity: 0, x: -100},
         { 
@@ -54,7 +55,7 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
         }
       );
 
-      // Animate segments - each waits for previous to complete
+      // Animate segments - each waits for previous to complete, slides from left
       gsap.fromTo(segments,
         { opacity: 0, x: -100},
         { 
@@ -68,6 +69,7 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
     }
   }, [neo4jPath]);
 
+  // Fallback UI when no path is found
   if (!neo4jPath || !neo4jPath.segments || neo4jPath.segments.length === 0) {
     return <div className="text-black">
       <h1 className="flex justify-center text-2xl">No path found</h1>
@@ -78,7 +80,7 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
 
   return (
     <div ref={containerRef} className="flex w-full mb-8 justify-center items-center">  
-      {/* Show the first element (start of first segment) */}
+      {/* First element (starting actor) - displayed separately to avoid duplicates */}
       {neo4jPath.segments[0] && (
         <div className="first-segment flex items-center justify-center text-center outline-2 border-2 rounded-md bg-[#5ba4f0] border-[#afc5db] p-4">
           <h1 className="font-bold">{neo4jPath.segments[0].start.properties.name}</h1>
@@ -86,15 +88,16 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
       )}
       
       {/* Map through segments and show arrow + end node for each */}
+      {/* This pattern avoids duplicate elements since segments overlap (end of one = start of next) */}
       {neo4jPath.segments.map((segment: any, index: number) => {
         return (
           <React.Fragment key={index}>
-            {/* Arrow */}
+            {/* Arrow connecting elements */}
             <div className="arrow-segment flex items-center justify-center">
               <div className="w-8 border-t-2 border-gray-600 transform"></div>
             </div>
             
-            {/* Segment containing either an Actor name or Movie title */}
+            {/* Actor or Movie element */}
             <div className={segment.end.properties.name?
               "content-segment flex items-center justify-center text-center outline-2 border-2 rounded-md bg-[#5ba4f0] border-[#afc5db] p-4":
               "content-segment flex items-center justify-center text-center outline-2 border-2 rounded-md bg-[#c5e0fa] border-[#afc5db] p-4"}>

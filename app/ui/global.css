@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
+/* CSS custom properties for theming */
 :root {
   --background: #171717;
   --foreground: #000000; 
 }
 
+/* Map custom properties to Tailwind theme */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,6 +14,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode color scheme (when system prefers dark mode) */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,6 +22,7 @@
   }
 }
 
+/* Global body styling with background image */
 body {
   background: var(--background);
   color: var(--foreground);
@@ -29,6 +33,7 @@ body {
   background-attachment: fixed;
 }
 
+/* Input field styling (applies to all input elements globally) */
 input {
   background: #5ba4f0;
   border: 2px solid #afc5db;

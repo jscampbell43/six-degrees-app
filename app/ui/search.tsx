@@ -4,14 +4,15 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
+// Search component with debounced input for real-time filtering
+// Updates URL parameters as user types with 300ms delay to prevent excessive requests
 export default function Search({ placeholder, queryKey }: { placeholder: string; queryKey: string }) {
   const searchParams = useSearchParams();
   const pathName = usePathname();
   const { replace } = useRouter();
   
+  // Debounced search handler - waits 300ms after user stops typing before updating URL
   const handleSearch = useDebouncedCallback((term) => {
-    console.log(`Searching... ${term}`);
-    console.log(term)
     const params = new URLSearchParams(searchParams);
     params.set('page','1');
     if(term){
