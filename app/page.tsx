@@ -14,29 +14,29 @@ export default function Home({
         
         {/* Search section with two actor search inputs */}
         <Suspense fallback={<div>Loading...</div>}>
-          <div className="flex gap-20 w-full mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-20 w-full mb-8 items-center sm:items-stretch">
             {/* Search Actor 1 */}
-            <div className="flex-1">
-              <label htmlFor="actor1" className="mb-2 block text-sm font-bold">
+            <div className="flex-1 w-[95%] sm:w-auto mx-auto sm:mx-0">
+              <label htmlFor="actor1" className="mb-2 block text-sm font-bold text-center sm:text-left">
                 Choose Actor 1
               </label>
               <div className="relative">
                 <Search
-                  placeholder = "Search an actor by name"
-                  queryKey = "actor1"
+                  placeholder="Search an actor by name"
+                  queryKey="actor1"
                 />
               </div>
             </div>
 
             {/* Search Actor 2 */}
-            <div className="flex-1">
-              <label htmlFor="actor2" className="mb-2 block text-sm font-bold">
+            <div className="flex-1 w-[95%] sm:w-auto mx-auto sm:mx-0">
+              <label htmlFor="actor2" className="mb-2 block text-sm font-bold text-center sm:text-left">
                 Choose Actor 2
               </label>
               <div className="relative">
                 <Search
-                  placeholder = "Search an actor by name"
-                  queryKey = "actor2"
+                  placeholder="Search an actor by name"
+                  queryKey="actor2"
                 />
               </div>
             </div>

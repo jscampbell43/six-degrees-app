@@ -22,6 +22,9 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
       // Set base z-index for stacking elements (higher = on top)
       let zIndexSet = 100
       
+      // Check if we're in mobile view (screen width < 640px)
+      const isMobile = window.innerWidth < 640;
+      
       // Animate first element - appears first with a pop effect
       if (firstElement) {
         gsap.fromTo(firstElement,
@@ -42,30 +45,61 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
         gsap.set(el, { zIndex: zIndexSet - index - 10 });
       });
 
-      // Animate arrows - each waits for previous to complete, slides from left
-      gsap.fromTo(arrows,
-        { opacity: 0, x: -100},
-        { 
-          zIndex: -10,
-          opacity: 1, 
-          x: 0,
-          duration: .5, 
-          stagger: .5, // Wait for previous to complete (duration matches stagger)
-          ease: "power1.out"
-        }
-      );
+      // Animate arrows - responsive direction based on screen size
+      if (isMobile) {
+        // Mobile: animate from top (vertical layout)
+        gsap.fromTo(arrows,
+          { opacity: 0, y: -50},
+          { 
+            zIndex: -10,
+            opacity: 1, 
+            y: 0,
+            duration: .5, 
+            stagger: .5,
+            ease: "power1.out"
+          }
+        );
+      } else {
+        // Desktop: animate from left (horizontal layout)
+        gsap.fromTo(arrows,
+          { opacity: 0, x: -100},
+          { 
+            zIndex: -10,
+            opacity: 1, 
+            x: 0,
+            duration: .5, 
+            stagger: .5,
+            ease: "power1.out"
+          }
+        );
+      }
 
-      // Animate segments - each waits for previous to complete, slides from left
-      gsap.fromTo(segments,
-        { opacity: 0, x: -100},
-        { 
-          opacity: 1, 
-          x: 0,
-          duration: .5, 
-          stagger: .5, // Wait for previous to complete (duration matches stagger)
-          ease: "power1.out"
-        }
-      );
+      // Animate segments - responsive direction based on screen size
+      if (isMobile) {
+        // Mobile: animate from top (vertical layout)
+        gsap.fromTo(segments,
+          { opacity: 0, y: -50},
+          { 
+            opacity: 1, 
+            y: 0,
+            duration: .5, 
+            stagger: .5,
+            ease: "power1.out"
+          }
+        );
+      } else {
+        // Desktop: animate from left (horizontal layout)
+        gsap.fromTo(segments,
+          { opacity: 0, x: -100},
+          { 
+            opacity: 1, 
+            x: 0,
+            duration: .5, 
+            stagger: .5,
+            ease: "power1.out"
+          }
+        );
+      }
     }
   }, [neo4jPath]);
 
@@ -79,7 +113,7 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
   }
 
   return (
-    <div ref={containerRef} className="flex w-full mb-8 justify-center items-center">  
+    <div ref={containerRef} className="flex flex-col sm:flex-row w-full mb-8 justify-center items-center gap-1 sm:gap-1">  
       {/* First element (starting actor) - displayed separately to avoid duplicates */}
       {neo4jPath.segments[0] && (
         <div className="first-segment flex items-center justify-center text-center outline-2 border-2 rounded-md bg-[#5ba4f0] border-[#afc5db] p-4">
@@ -94,7 +128,8 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
           <React.Fragment key={index}>
             {/* Arrow connecting elements */}
             <div className="arrow-segment flex items-center justify-center">
-              <div className="w-8 border-t-2 border-gray-600 transform"></div>
+              <span className="text-gray-600 text-2xl sm:hidden">↓</span>
+              <span className="hidden sm:inline text-gray-600 text-sm">→</span>
             </div>
             
             {/* Actor or Movie element */}
