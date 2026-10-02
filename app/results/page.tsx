@@ -51,10 +51,10 @@ export default async function Results({
         <ResultsDisplay neo4jPath={serializedPath} />
         
         {/* Button to start a new search */}
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row mt-8 sm:mt-0">
           <Link
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full px-5 bg-[#c5e0fa] border-2 border-[#afc5db]
-            transition-colors hover:bg-[#dae9f7] hover:border-2 hover:border-white hover:shadow-[0_0_10px_white] dark:hover:bg-[#ccc] md:w-[180px] whitespace-nowrap font-bold"
+            className="button-glow flex h-12 w-full items-center justify-center gap-2 rounded-full px-5 bg-[#dae9f7] border-2 border-[#c5d0e0]
+            transition-colors hover:bg-[#e8f0fa] hover:border-2 hover:border-white hover:shadow-[0_0_20px_white] dark:hover:bg-[#ccc] md:w-[180px] whitespace-nowrap font-bold"
             href="/"
             rel="noopener noreferrer"
           >

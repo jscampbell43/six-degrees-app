@@ -18,8 +18,8 @@ export default function FindDegreesButton() {
 
   return (
     <Link
-      className="flex h-12 w-full items-center justify-center gap-2 rounded-full px-5 bg-[#c5e0fa] border-2 border-[#afc5db]
-            transition-colors hover:bg-[#dae9f7] hover:border-2 hover:border-white hover:shadow-[0_0_10px_white] dark:hover:bg-[#ccc] md:w-[180px] whitespace-nowrap font-bold"
+      className="button-glow flex h-12 w-full items-center justify-center gap-2 rounded-full px-5 bg-[#dae9f7] border-2 border-[#c5d0e0]
+            transition-colors hover:bg-[#e8f0fa] hover:border-2 hover:border-white hover:shadow-[0_0_20px_white] dark:hover:bg-[#ccc] md:w-[180px] whitespace-nowrap font-bold"
       href={`/results${queryString ? `?${queryString}` : ''}`}
       rel="noopener noreferrer"
     >

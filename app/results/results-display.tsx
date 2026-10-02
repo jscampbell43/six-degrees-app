@@ -107,8 +107,8 @@ export default function ResultsDisplay({ neo4jPath }: ResultsDisplayProps) {
   if (!neo4jPath || !neo4jPath.segments || neo4jPath.segments.length === 0) {
     return <div className="text-black">
       <h1 className="flex justify-center text-2xl">No path found</h1>
-      <h3 className="flex justify-center">Make sure all names are spelled correctly</h3>
-      <h3 className="flex justify-center">Lesser known actors are not included in database</h3>
+      <h3 className="text-center sm:text-left">Make sure all names are capitalized and spelled correctly</h3>
+      <h3 className="text-center sm:text-left">Lesser known actors are not included in database</h3>
       </div>;
   }
 
